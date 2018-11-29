@@ -68,7 +68,7 @@ yum -y install nginx
 
 默认为 `/usr/local/nginx`
 
-#### 卸载  nginx
+#### 卸载 nginx
 
 直接卸载`/usr/local/nginx`文件夹
 
