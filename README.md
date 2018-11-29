@@ -86,3 +86,7 @@ service nginx restart
 ```
 
 ### macos
+
+#### brew search nginx
+
+#### brew install nginx
