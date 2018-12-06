@@ -43,7 +43,7 @@ rpm -e nginx
 rpm -e --nodeps nginx
 ```
 
-#### 启动方式
+#### 启动、停止、重载方式
 
 ```sh
 # 启动
@@ -96,6 +96,8 @@ service nginx restart
 ```sh
 # 安装
 brew install nginx
+
+# 默认安装路径 /usr/local/Cellar/nginx/
 ```
 
 #### 查看 `nginx` 安装位置
@@ -106,4 +108,72 @@ nginx -v
 
 # 查看版本 编译配置 安装路径
 nginx -V
+```
+
+#### 启动、停止、重载方式
+
+```sh
+# 启动
+sudo nginx
+
+# 停止
+sudo nginx -s stop # 无日志
+
+sudo nginx -s quit # 有日志
+
+# 重新加载
+sudo nginx -s reload
+```
+
+### windows
+
+[nginx download](http://nginx.org/en/download.html)
+
+#### 启动、停止、重载方式
+
+```sh
+# 启动
+C:\server\nginx-1.12.2>start nginx #(可后台)
+
+C:\server\nginx-1.12.2>nginx.exe #(不可后台)
+
+# 停止
+C:\server\nginx-1.12.2>nginx.exe -s stop #(快速停止)
+
+C:\server\nginx-1.12.2>nginx.exe -s quit #(从容停止)
+
+# 重新加载配置
+C:\server\nginx-1.12.2>nginx.exe -s reload
+
+# 查看版本
+C:\server\nginx-1.12.2>nginx -v
+```
+
+#### 快速启动脚本
+
+`nginx-stop.bat`
+
+```
+c:
+cd \server\nginx-1.12.2
+nginx.exe
+exit
+```
+
+`nginx-stop.bat`
+
+```
+c:
+cd \server\nginx-1.12.2
+nginx.exe -s stop
+exit
+```
+
+`nginx-reload.bat`
+
+```
+c:
+cd \server\nginx-1.12.2
+nginx.exe -s -reload
+exit
 ```
