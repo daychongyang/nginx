@@ -121,8 +121,12 @@ sudo nginx -s stop # 无日志
 
 sudo nginx -s quit # 有日志
 
+ps -ef|grep nginx
+sudo kill #$masterId
+
 # 重新加载
 sudo nginx -s reload
+
 ```
 
 ### windows
@@ -133,20 +137,20 @@ sudo nginx -s reload
 
 ```sh
 # 启动
-C:\server\nginx-1.12.2>start nginx #(可后台)
+C:\server\nginx-1.12.2\start nginx #(可后台)
 
-C:\server\nginx-1.12.2>nginx.exe #(不可后台)
+C:\server\nginx-1.12.2\nginx.exe #(不可后台)
 
 # 停止
-C:\server\nginx-1.12.2>nginx.exe -s stop #(快速停止)
+C:\server\nginx-1.12.2\nginx.exe -s stop #(快速停止)
 
-C:\server\nginx-1.12.2>nginx.exe -s quit #(从容停止)
+C:\server\nginx-1.12.2\nginx.exe -s quit #(从容停止)
 
 # 重新加载配置
-C:\server\nginx-1.12.2>nginx.exe -s reload
+C:\server\nginx-1.12.2\nginx.exe -s reload
 
 # 查看版本
-C:\server\nginx-1.12.2>nginx -v
+C:\server\nginx-1.12.2\nginx -v
 ```
 
 #### 快速启动脚本
