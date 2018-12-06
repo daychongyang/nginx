@@ -87,6 +87,23 @@ service nginx restart
 
 ### macos
 
-#### brew search nginx
+#### 安装 `homebrew`
 
-#### brew install nginx
+`/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+
+#### 安装 `nginx`
+
+```sh
+# 安装
+brew install nginx
+```
+
+#### 查看 `nginx` 安装位置
+
+```sh
+# 查看版本
+nginx -v
+
+# 查看版本 编译配置 安装路径
+nginx -V
+```
