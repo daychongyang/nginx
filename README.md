@@ -12,8 +12,8 @@ nginx 通用配置
 
 ## 安装、使用
 
-- linux:centos
+- [linux:centos](https://github.com/daysunx2/nginx-ge-profile/blob/master/docs/install/linux.md)
 
-- macos
+- [macos](https://github.com/daysunx2/nginx-ge-profile/blob/master/docs/install/macos.md)
 
-- windows
+- [windows](https://github.com/daysunx2/nginx-ge-profile/blob/master/docs/install/windows.md)
