@@ -2,7 +2,7 @@
 
 ## 项目介绍
 
-nginx 通用配置
+nginx 学习、通用配置
 
 ## 为什么需要使用 Nginx?
 
@@ -17,3 +17,7 @@ nginx 通用配置
 - [macos](https://github.com/daysunx2/nginx-ge-profile/blob/master/docs/install/macos.md)
 
 - [windows](https://github.com/daysunx2/nginx-ge-profile/blob/master/docs/install/windows.md)
+
+## 常见需求
+
+- 静态文件服务

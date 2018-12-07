@@ -34,4 +34,3 @@ kill -9 $pid
 # 不查看命令号直接强制停止
 kill -(HUP|TREM|QUIT) `cat /usr/local/nginx/nginx.pid`
 ```
-
