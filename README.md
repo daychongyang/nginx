@@ -198,6 +198,31 @@ $ nginx -V
 - --with-openssl-opt 在编译时为 openssl 设置附加参数
 - --with-debug 启用 debug 日志
 
+## 隐藏 Nginx 版本号
+
+### `nginx.conf`
+
+```diff
+http {
++ server_tokens off;
+}
+```
+
+### `nginx.conf`
+
+```diff
+http {
++ server_tokens off;
+}
+```
+
+### `fastcgi_params`
+
+```diff
+- fastcgi_param  SERVER_SOFTWARE    nginx/$nginx_version;
++ fastcgi_param SERVER_SOFTWARE nginx;
+```
+
 ## 应用场景
 
 ### 动静分离
