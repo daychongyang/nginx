@@ -8,6 +8,9 @@
   - [MacOS](#macos)
   - [CentOS](#centos)
 - [隐藏 Nginx 版本号](#隐藏-nginx-版本号)
+- [自定义错误页](#自定义错误页)
+  - [Nginx 自定义错误页](#nginx-自定义错误页)
+  - [反向代理自定义错误页](#反向代理自定义错误页)
 - [应用场景](#应用场景)
   - [动静分离](#动静分离)
   - [正向代理](#正向代理)
@@ -225,6 +228,53 @@ http {
 ```diff
 - fastcgi_param  SERVER_SOFTWARE    nginx/$nginx_version;
 + fastcgi_param SERVER_SOFTWARE nginx;
+```
+
+## 自定义错误页
+
+### Nginx 自定义错误页
+
+```diff
+server {
+
++   error_page  404              /404.html;
++   location = /404.html {
++       root   /www/error_pages;
++   }
+
++    error_page   500 502 503 504  /50x.html;
++   location = /50x.html {
++       root   /www/error_pages;
++   }
+}
+```
+
+### 自定义反向代理错误页
+
+```diff
+server {
+    listen       8080;
+    listen  [::]:8080;
+    server_name  localhost;
+
+    location /api {
++       proxy_intercept_errors on;
+        proxy_pass http://localhost:80/;
+        proxy_set_header HOST   $host;
+        proxy_set_header X-Real-IP      $remote_addr;
+        proxy_set_header X-Forwarded-FOR $proxy_add_x_forwarded_for;
+    }
+
++   error_page  404              /404.html;
++   location = /404.html {
++       root   /www/error_pages;
++   }
+
++   error_page   500 502 503 504  /50x.html;
++   location = /50x.html {
++       root   /www/error_pages;
++   }
+}
 ```
 
 ## 应用场景
