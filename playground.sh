@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 if [ "$(docker ps -q -f name=nginx)" ]; then
     docker rm -f nginx
 fi

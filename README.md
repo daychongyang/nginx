@@ -2,6 +2,18 @@
 
 # Personal Nginx notes.
 
+- [Nginx 是什么?](#Nginx-是什么?)
+- [Nginx 特点](#Nginx-特点)
+- [如何使用?](#如何使用?)
+  - [MacOS](#macos)
+  - [CentOS](#centos)
+- [隐藏 Nginx 版本号](#隐藏-nginx-版本号)
+- [应用场景](#应用场景)
+  - [动静分离](#动静分离)
+  - [正向代理](#正向代理)
+  - [反向代理](#反向代理)
+  - [负载均衡](#负载均衡)
+
 ## Nginx 是什么?
 
 - 轻量级 Web 服务器
@@ -199,14 +211,6 @@ $ nginx -V
 - --with-debug 启用 debug 日志
 
 ## 隐藏 Nginx 版本号
-
-### `nginx.conf`
-
-```diff
-http {
-+ server_tokens off;
-}
-```
 
 ### `nginx.conf`
 
