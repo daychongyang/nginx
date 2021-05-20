@@ -1,4 +1,4 @@
-<p align="center"><img src="http://nginx.org/nginx.png" width="200" /></p>
+<p align="center"><p></p><img src="http://nginx.org/nginx.png" width="200"></p>
 
 # Personal Nginx notes.
 
