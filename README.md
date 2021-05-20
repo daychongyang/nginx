@@ -1,6 +1,6 @@
-<p align="center"><p></p><img src="http://nginx.org/nginx.png" width="200"></p>
-
 # Personal Nginx notes.
+
+![nginx-1.12.2](https://img.shields.io/badge/nginx-1.12.2-blue)
 
 - [Nginx 是什么?](#Nginx-是什么?)
 - [Nginx 特点](#Nginx-特点)
