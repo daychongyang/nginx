@@ -7,10 +7,16 @@
 - [如何使用?](#如何使用?)
   - [MacOS](#macos)
   - [CentOS](#centos)
-- [隐藏 Nginx 版本号](#隐藏-nginx-版本号)
-- [自定义错误页](#自定义错误页)
-  - [Nginx 自定义错误页](#nginx-自定义错误页)
-  - [反向代理自定义错误页](#反向代理自定义错误页)
+    - [包管理器安装](#包管理器安装)
+    - [编译安装](#编译安装)
+      - [安装脚本](#安装脚本)
+      - [平滑升级](#平滑升级)
+      - [编译参数](#编译参数)
+- [配置详解](#配置文件详解)
+  - [隐藏版本号](#隐藏版本号)
+  - [自定义错误页](#自定义错误页)
+    - [静态资源自定义错误页](#静态资源自定义错误页)
+    - [反向代理自定义错误页](#反向代理自定义错误页)
 - [应用场景](#应用场景)
   - [动静分离](#动静分离)
   - [正向代理](#正向代理)
@@ -30,7 +36,7 @@
 
 ## 如何使用?
 
-[Nginx: download](http://nginx.org/en/download.html)
+[Nginx 下载地址](http://nginx.org/en/download.html)
 
 ### MacOS
 
@@ -54,7 +60,30 @@ brew uninstall nginx
 
 ### CentOS
 
+#### 包管理器安装
+
+#### 安装
+
+```bash
+# 默认安装位置 /etc/nginx
+$ yum -y install nginx
+```
+
+#### 更新
+
+```bash
+$ yum update nginx
+```
+
+#### 卸载
+
+```bash
+$ yum remove nginx
+```
+
 #### 编译安装
+
+##### 安装脚本
 
 ```bash
 # 安装编译工具以及库文件
@@ -86,7 +115,7 @@ ln -s /usr/local/nginx/sbin/nginx /usr/bin/nginx
 $ nginx -v
 ```
 
-#### 平滑升级
+##### 平滑升级
 
 ```bash
 # 下载安装包
@@ -108,17 +137,7 @@ mv objs/nginx /usr/local/nginx/sbin/nginx -f
 make upgrade
 ```
 
-### 查看信息
-
-```bash
-# 查看 Nginx 版本
-$ nginx -v
-
-# 查看当前配置
-$ nginx -V
-```
-
-### 编译参数
+##### 编译参数
 
 - --prefix= 指向安装目录
 - --sbin-path 指向（执行）程序文件（nginx）
@@ -213,9 +232,50 @@ $ nginx -V
 - --with-openssl-opt 在编译时为 openssl 设置附加参数
 - --with-debug 启用 debug 日志
 
-## 隐藏 Nginx 版本号
+## 常用命令
 
-### `nginx.conf`
+### 查看版本
+
+```bash
+$ nginx -v
+```
+
+### 查看配置
+
+```bash
+$ nginx -V
+```
+
+### 配置检查
+
+```bash
+$ nginx -t
+```
+
+### 启动服务
+
+```bash
+$ nginx -c /etc/nginx/nginx.conf
+```
+
+### 停止服务
+
+```bash
+$ nginx -s stop
+$ nginx -s quit
+```
+
+### 重载配置
+
+```bash
+$ nginx -s reload
+```
+
+## 配置详解
+
+### 隐藏版本号
+
+#### `nginx.conf`
 
 ```diff
 http {
@@ -223,7 +283,7 @@ http {
 }
 ```
 
-### `fastcgi_params`
+#### `fastcgi_params`
 
 ```diff
 - fastcgi_param  SERVER_SOFTWARE    nginx/$nginx_version;
@@ -232,7 +292,7 @@ http {
 
 ## 自定义错误页
 
-### Nginx 自定义错误页
+### 静态资源自定义错误页
 
 ```diff
 server {
