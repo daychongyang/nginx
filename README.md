@@ -7,11 +7,6 @@
 - [如何使用?](#如何使用?)
   - [MacOS](#macos)
   - [CentOS](#centos)
-    - [包管理器安装](#包管理器安装)
-    - [编译安装](#编译安装)
-      - [安装脚本](#安装脚本)
-      - [平滑升级](#平滑升级)
-      - [编译参数](#编译参数)
 - [常用命令](#常用命令)
   - [查看版本](#查看版本)
   - [查看配置](#查看配置)
@@ -19,16 +14,31 @@
   - [启动服务](#启动服务)
   - [停止服务](#停止服务)
   - [重载配置](#重载配置)
-- [配置详解](#配置详解)
+- [配置文件](#配置文件)
+  - [全局块](#全局块)
+  - [events 块](#events-块)
+  - [http 块](#http-块)
+  - [server 块](#server-块)
+  - [location 块](#location-块)
+- [自定义配置](#自定义配置)
   - [隐藏版本号](#隐藏版本号)
   - [自定义错误页](#自定义错误页)
-    - [静态资源自定义错误页](#静态资源自定义错误页)
-    - [反向代理自定义错误页](#反向代理自定义错误页)
 - [应用场景](#应用场景)
   - [动静分离](#动静分离)
   - [正向代理](#正向代理)
   - [反向代理](#反向代理)
   - [负载均衡](#负载均衡)
+  - [访问控制](#访问控制)
+  - [状态访问](#状态访问)
+  - [网站过滤](#网站过滤)
+  - [流量控制](#流量控制)
+  - [防盗链](#防盗链)
+  - [请求拦截](#请求拦截)
+  - [资源下载](#资源下载)
+  - [跨域](#跨域)
+  - [重定向](#重定向)
+  - [HTTPS](#HTTPS)
+  - [爬虫过滤](#爬虫过滤)
 
 ## Nginx 是什么?
 
@@ -278,7 +288,243 @@ $ nginx -s quit
 $ nginx -s reload
 ```
 
-## 配置详解
+## 配置文件
+
+### nginx.conf
+
+```bash
+# 全局块
+#user  nobody;
+worker_processes  1;
+
+#event块
+events {
+    worker_connections  1024;
+}
+
+# http块
+http {
+    # http全局块
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
+
+    # server块
+    server {
+        #server全局块
+        listen       8000;
+        server_name  localhost;
+
+        #location块
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+
+    server {
+      ...
+    }
+}
+```
+
+### 全局块
+
+> 设置与具体业务无关的参数, 比如进程数,运行身份等等;
+
+```bash
+# 指定可运行nginx服务的用户和用户组, 默认 `nobody` 【全局块配置】
+# user [user] [group]
+# 不设置或设置为 `nobody`来允许任意用户运行 nginx 服务
+user nobody nobody;
+
+# 指定工作线程数，可以制定具体的进程数，也可使用自动模式 【全局块配置】
+# worker_processes number | auto；
+# eg：指定4个工作线程，这种情况下会生成一个master进程和4个worker进程
+worker_processes 4;
+
+# 指定pid文件存放的路径 【全局块配置】
+pid logs/nginx.pid;
+
+# 指定Nginx进程运行时的错误日志路径和格式【全局块/http块/sever块/location块配置】
+# 此指令可以在全局块、http块、server块以及location块中配置。
+# 其中debug级别的日志需要编译时使用--with-debug开启debug开关
+# error_log [path] [debug | info | notice | warn | error | crit | alert | emerg]
+# error_log  logs/error.log  notice;
+error_log  logs/error.log  info;
+
+# 指定进程最大可打开文件数
+# worker_rlimit_nofile number;
+worker_rlimit_nofile 65535;
+```
+
+```bash
+# 查看 CPU 核数
+$ lscpu
+
+$ cat /proc/cpuinfo | grep 'processor' | wc -l
+```
+
+### events 块
+
+```bash
+events {
+  # 一个worker进程在同一时间可以处理的最大请求数
+  # 默认 512【events块配置】
+  worker_connections  1024;
+
+  # 当某一时刻只有一个网络连接到来时，多个睡眠进程会被同时叫醒，但只有一个进程可获得连接
+  # 如果每次唤醒的进程数目太多，会影响一部分系统性能。在Nginx服务器的多进程下，就有可能出现这样的问题
+  # 开启时，将会对多个Nginx进程接收连接进行序列化，防止多个进程对连接的争抢
+  # 默认是开启状态 【events块配置】
+  # accept_mutex on | off;
+
+  # 当 accept_mutex 功能开启后, 只有一个持有mutex锁的worker进程会接受并处理请求,其他worker进程等待
+  # accept_mutex_delay 指定 worker 进程等待时间
+  # 默认 500ms 【events块配置】
+  # accept_mutex_delay 500ms;
+
+  # 如果multi_accept被禁止了，nginx一个工作进程只能同时接受一个新的连接。否则，一个工作进程可以同时接受所有的新连接
+  # 如果nginx使用kqueue连接方法，那么这条指令会被忽略，因为这个方法会报告在等待被接受的新连接的数量
+  # 默认是关闭状态 【events块配置】
+  # multi_accept on | off;
+
+
+  # 用于指定网络IO模型，method可选择的内容有：select、poll、kqueue、epoll、rtsig、/dev/poll以及eventport，一般操作系统不支持上面所有模型的。
+  # 默认会选择最适合当前操作系统的事件模型【events块配置】
+  # use epoll
+}
+```
+
+- worker_connections 关联指标:
+  1. 内存
+  2. 操作系统级别的"进程最大可打开文件数"
+  ```bash
+  $ ulimit -n
+  1048576
+  ```
+- 最大连接数为 worker_processes\*worker_connections;
+
+### events 块
+
+```bash
+events {
+  # 用于指定Nginx服务器与用户的网络最大连接连接
+  worker_connections  1024;
+}
+```
+
+### http 块
+
+```bash
+http {
+  # 用于包含其他的配置文件 【全局块/http块/sever块/location块配置】
+  # 将mime.types包含进来，mime.types和ngin.cfg同级目录，不同级的话需要指定具体路径
+  include  mime.types;
+
+  # 用于配置默认类型
+  # 默认值为text/plain,【http块/sever块/location块配置】
+  default_type  application/octet-stream;
+
+  # 用于定义日志格式，【http块配置】
+  log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                  '$status $body_bytes_sent "$http_referer" '
+                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+  # 用于指定Nginx服务器提供服务过程应答前端请求的日志路径和格式,【http块/sever块/location块配置】
+  # access_log path [format [buffer=size]]
+  # 如果你要关闭access_log,你可以使用下面的命令
+  # access_log off;
+  access_log  /var/log/nginx/access.log  main;
+
+  # 用于开启/关闭sendfile方式传输文件，【http块/sever块/location块配置】
+  # sendfile  on | off;
+
+  # 用于设置sendfile最大数据量
+  # 其中，size值如果大于0，Nginx进程的每个worker process每次调用sendfile()传输的数据量最大不能超过这个值；
+  # 如果设置为0，则无限制。
+  # 默认值为0,【http块/sever块/location块配置】
+  # sendfile_max_chunk size;
+  # sendfile_max_chunk 128k;
+
+  # 用于配置连接超时时间
+  # header_timeout，可选项，在应答报文头部的Keep-Alive域设置超时时间：“Keep-Alive:timeout= header_timeout”。
+  # 默认值为75s;【http块/sever块/location块配置】
+  # keepalive_timeout timeout [header_timeout]
+  # keepalive_timeout 120s 100s
+
+  # 用于配置单连接请求数上限
+  # Nginx服务器端和用户端建立会话连接后，用户端通过此连接发送请求。指令keepalive_requests用于限制用户通过某一连接向Nginx服务器发送请求的次数。
+  # 默认值为100, 【http块/sever块/location块配置】
+  # keepalive_requests number;
+}
+```
+
+### server 块
+
+```bash
+server {
+  # 用于指定监听端口
+  # 默认值为 *:80|*:8080, 【sever块配置】
+  # listen address[:port] [default_server] [ssl] [http2 | spdy] [proxy_protocol] [setfib=number] [fastopen=number] [backlog=number] [rcvbuf=size] [sndbuf=size] [accept_filter=filter] [deferred] [bind] [ipv6only=on|off] [reuseport] [so_keepalive=on|off|[keepidle]:[keepintvl]:[keepcnt]];
+
+  # listen port [default_server] [ssl] [http2 | spdy] [proxy_protocol] [setfib=number] [fastopen=number] [backlog=number] [rcvbuf=size] [sndbuf=size] [accept_filter=filter] [deferred] [bind] [ipv6only=on|off] [reuseport] [so_keepalive=on|off|[keepidle]:[keepintvl]:[keepcnt]];
+  # listen 127.0.0.1:8000;  # 只监听IP为 127.0.0.1，端口为 8000 的请求
+  # listen 127.0.0.1; # 只监听IP为 127.0.0.1，端口为 80 的请求（不指定端口，默认80）
+  # listen 8000; # 监听来自所有IP，请求8000端口的请求
+  # listen *:8000; # 同上
+  # listen localhost:8000; # 同一
+  listen 80;
+
+  # 用于指定虚拟主机的名称
+  server_name: daychongyang.com www.daychongyang.com;
+  # server_name *.daychongyang.com;
+
+}
+```
+
+- `listen`
+  - `address`：监听的 IP 地址，如果是 IPv6 的地址, 需要使用中括号“[]”括起来，比如[fe80::1]等
+  - `port`：监听的端口号，如果只定义了 IP 地址没有定义端口号, 就使用 80 端口
+    - 若未指定 `listen` 指令，且 nginx 以超级用户权限运行, 则使用*:80，否则使用*:8000
+    - 多个虚拟主机可同时监听同一个端口, 但 `server_name` 需设置不同值
+  - `default_server`：若 Host 没匹配到对应的虚拟主机, 则通过这台虚拟主机处理
+  - `ssl`：设置会话连接使用 SSL 模式进行, 此标识符和 Nginx 服务器提供的 HTTPS 服务有关
+
+### location 块
+
+```bash
+server {
+  # 基于Nginx服务器接收到的请求字符串，对除虚拟主机名之外的字符串进行匹配，对特定的请求进行处理
+  # location [ = | ~ | ~* | ^~ ] uri { ... }
+  location / {
+
+  }
+}
+```
+
+- `uri`, 字符串 | 正则表达式
+
+- 匹配选项
+
+  - `=`, 用于字符串 `uri`, 要求找到与请求字符串【严格匹配】的`uri`后, 立即使用对应的 `location`块处理请求, 而不再继续往下搜索
+  - `^~`, 用于字符串 `uri`, 要求找到与请求字符串【匹配度最高】的`uri`后, 立即使用对应的 `location`块处理请求, 而不再继续往下搜索
+  - `~`, 用于正则表达式 `uri`, 表示【区分】大小写
+  - `~*`, 用于正则表达式 `uri`, 表示【不区分】大小写
+
+- 匹配规则
+  1. 在多个 `location` 中寻找是否有对应的`uri`与请求字符串相匹配
+     - 若匹配的字符串`uri`使用匹配选项`=`或`^~`修饰, 则立即使用对应的 `location`块处理请求, 而不再继续往下搜索
+     - 若存在多个匹配, 则记录匹配度最高的一个
+  2. 只要有正则匹配成功, 便会结束搜索, 并使用对应的 `location` 块对该请求进行处理, 而不再继续往下搜索
+  3. 倘若正则匹配全部失败, 则使用匹配度最高的 `location` 块对该请求进行处理
+
+## 自定义配置
 
 ### 隐藏版本号
 
@@ -297,9 +543,9 @@ http {
 + fastcgi_param SERVER_SOFTWARE nginx;
 ```
 
-## 自定义错误页
+### 自定义错误页
 
-### 静态资源自定义错误页
+#### 静态资源自定义错误页
 
 ```diff
 server {
@@ -316,7 +562,7 @@ server {
 }
 ```
 
-### 自定义反向代理错误页
+#### 自定义反向代理错误页
 
 ```diff
 server {
