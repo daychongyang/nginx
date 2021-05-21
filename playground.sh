@@ -1,14 +1,11 @@
 #!/bin/bash
+readonly TARGET="playground"
 
-if [ "$(docker ps -q -f name=nginx)" ]; then
-    docker rm -f nginx
+if [ "$(docker ps -q -f name=$TARGET)" ]; then
+    docker exec -it $TARGET bash
+elif [ "$(docker ps -a -q -f name=$TARGET)" ]; then
+    docker start -a $TARGET
+else
+    docker pull centos:7
+    docker run -d --name $TARGET -it centos:7 bash
 fi
-
-if [ ! -d "nginx" ]; then
-    docker pull nginx
-    docker run -d --name nginx nginx
-    docker cp nginx:/etc/nginx nginx
-    docker rm -f nginx
-fi
-
-docker run -d -p 12138:80 -p 8080:8080 --name nginx -v $(pwd)/nginx:/etc/nginx -v $(pwd)/www:/www -v $(pwd)/logs:/var/log/nginx nginx
