@@ -20,6 +20,9 @@
   - [http 块](#http-块)
   - [server 块](#server-块)
   - [location 块](#location-块)
+- [变量](变量)
+  - [自定义变量](#自定义变量)
+  - [内置变量](#内置变量)
 - [自定义配置](#自定义配置)
   - [隐藏版本号](#隐藏版本号)
   - [自定义错误页](#自定义错误页)
@@ -39,6 +42,8 @@
   - [重定向](#重定向)
   - [HTTPS](#HTTPS)
   - [爬虫过滤](#爬虫过滤)
+  - [动态 upstream](#动态-upstream)
+  - [Nginx 缓存](#nginx-缓存)
 
 ## Nginx 是什么?
 
@@ -504,25 +509,71 @@ server {
   # location [ = | ~ | ~* | ^~ ] uri { ... }
   location / {
 
+    # 用于设置资源根目录
+    # 实际路径 root+location
+    # 默认值为 `html`, 【http块/sever块/location块配置】
+    # root path;
+    root /www/app;
+
+    # 用于设置目录别名, 【location块配置】
+    # 必须以 `/` 结尾
+    # 实际路径 alias
+    # alias path;
+
+    # 用于指定网站初始网页
+    # 默认值为 `index.html`
+    # index filename;
+    index  index.html index.htm;
+
+
+
+    # 用于替代部分rewrite的指令，提高解析效率
+    # 按指定的file顺序查找存在的文件，并使用第一个找到的文件进行请求处理
+    # 查找路径为给定的root或alias
+    # 如果给出的file都没有匹配到，则重新请求最后一个参数给定的uri，就是新的location匹配
+    # 如果是格式2，如果最后一个参数是 = 404 ，若给出的file都没有匹配到，则最后返回404的响应码
+    # try_files file ... uri; 
+    # try_files file ... =code;
+    # try_files $uri $uri/index.html $uri.html @default;
   }
+
+  # location @default { 
+  #   proxy_pass http://default;
+  # }
+
+  # 用于配置错误页
+  # error_page error path;
+  error_page  404              /404.html;
+  location = /404.html {
+      root   /www/error_pages;
+  }
+
+  error_page   500 502 503 504  /50x.html;
+  location = /50x.html {
+      root   /www/error_pages;
+  }
+
+  # error_page 403      http://example.com/forbidden.html;
+  # error_page 404 =301 http://example.com/notfound.html;
+
+  # 500 502 503 504 @jump_to_error;
+  # location @jump_to_error {    
+
+  # }
 }
 ```
 
 - `uri`, 字符串 | 正则表达式
+- `=`, 用于字符串 `uri`, 【精准匹配】要求找到与请求字符串严格匹配的`uri`后, 立即使用对应的 `location`块处理请求
+- `^~`, 用于字符串 `uri`, 【忽略正则匹配】要求找到与请求字符串匹配度最高的`uri`后, 立即使用对应的 `location`块处理请求
+- `~`, 用于正则表达式 `uri`,【大小写敏感匹配】表示【区分】大小写, (请求字符串默认解码)
+- `~*`, 用于正则表达式 `uri`,【大小写不敏感匹配】表示【不区分】大小写
 
-- 匹配选项
-
-  - `=`, 用于字符串 `uri`, 要求找到与请求字符串【严格匹配】的`uri`后, 立即使用对应的 `location`块处理请求, 而不再继续往下搜索
-  - `^~`, 用于字符串 `uri`, 要求找到与请求字符串【匹配度最高】的`uri`后, 立即使用对应的 `location`块处理请求, 而不再继续往下搜索
-  - `~`, 用于正则表达式 `uri`, 表示【区分】大小写
-  - `~*`, 用于正则表达式 `uri`, 表示【不区分】大小写
-
-- 匹配规则
-  1. 在多个 `location` 中寻找是否有对应的`uri`与请求字符串相匹配
-     - 若匹配的字符串`uri`使用匹配选项`=`或`^~`修饰, 则立即使用对应的 `location`块处理请求, 而不再继续往下搜索
-     - 若存在多个匹配, 则记录匹配度最高的一个
-  2. 只要有正则匹配成功, 便会结束搜索, 并使用对应的 `location` 块对该请求进行处理, 而不再继续往下搜索
-  3. 倘若正则匹配全部失败, 则使用匹配度最高的 `location` 块对该请求进行处理
+- `location` 优先级
+  1. 精准匹配(`=`与`完整路径`)
+  2. 忽略正则匹配(`^~`)
+  3. 正则匹配(`~`与`~*`)
+  4. 常规字符串匹配
 
 ## 自定义配置
 
