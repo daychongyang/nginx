@@ -1,23 +1,44 @@
-# 🌱 nginx-conf
+# Personal Nginx notes.
 
-## 项目介绍
+![nginx-1.20.0](https://img.shields.io/badge/nginx-1.20.0-blue)
 
-nginx 学习、通用配置
+- [Preparation](#preparation)
+  - [Playground](#playground)
+  - [Preflight](#preflight)
+- [Installation](#installation)
+- [Syntax highlighting](#syntax-highlighting)
 
-## 为什么需要使用 Nginx?
+## Preparation
 
-- Web 服务器: 使用更少的资源,支持更多的并发连接.
-- 负载均衡服务器: 系统资源开销,CPU 使用效率更好.
-- 邮件代理服务器
+## Playground
 
-## 安装、使用
+```bash
+$ chmod a+x playground.sh
 
-- [linux:centos](https://github.com/daysunx2/nginx-ge-profile/blob/master/docs/install/linux.md)
+$ ./playground.sh
+```
 
-- [macos](https://github.com/daysunx2/nginx-ge-profile/blob/master/docs/install/macos.md)
+## Preflight
 
-- [windows](https://github.com/daysunx2/nginx-ge-profile/blob/master/docs/install/windows.md)
+```
+$ yum install vim tree gcc zlib-devel pcre-devel make -y
+```
 
-## 常见需求
+## Installation
 
-- 静态文件服务
+```bash
+$ cd /usr/local/src
+$ curl -O http://nginx.org/download/nginx-1.20.0.tar.gz
+$ tar -xzf nginx-1.20.0.tar.gz
+$ ./configure --prefix=/usr/local/nginx
+$ make
+$ make install
+$ ln -s /usr/local/nginx/sbin/nginx /usr/bin/nginx
+$ nginx -V
+```
+
+## Syntax highlighting
+
+```
+$ cp -r /usr/local/src/nginx-1.20.0/contrib/vim/* ~/.vim
+```
